@@ -1,0 +1,38 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: supportdesk
+      POSTGRES_PASSWORD: localdevonly
+      POSTGRES_DB: supportdesk
+    ports: ["5433:5432"]
+    volumes: ["supportdesk_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U supportdesk -d supportdesk"]
+      interval: 5s
+      retries: 10
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://supportdesk:localdevonly@db:5432/supportdesk
+      LLM_MODE: ollama
+      OLLAMA_MODEL: qwen3:4b
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      RAG_MODE: semantic
+    ports: ["8000:8000"]
+    depends_on:
+      db: {condition: service_healthy}
+  frontend:
+    image: node:24-alpine
+    working_dir: /src
+    environment:
+      API_PROXY_TARGET: http://api:8000
+    volumes: ["./frontend:/src", "frontend_modules:/src/node_modules"]
+    command: sh -c "npm install && npm run dev"
+    ports: ["5173:5173"]
+    depends_on: [api]
+volumes:
+  supportdesk_data:
+  frontend_modules:
