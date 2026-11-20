@@ -4,6 +4,17 @@ A customer support application that uses AI to classify tickets, retrieve releva
 
 Built to explore how LLMs can work with backend systems while keeping people in control of important decisions.
 
+## Screenshots
+
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+
+### AI Review
+![AI Review](docs/screenshots/ai-review.png)
+
+### Audit History
+![Audit History](docs/screenshots/audit-history.png)
+
 ## Tech Stack
 
 - **Backend:** Python, FastAPI, PostgreSQL, pgvector
